@@ -1,0 +1,43 @@
+version: '3.9'
+
+services:
+  profilservice:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '4000:4000'
+    environment:
+      - PORT=4000
+      - MONGODB_URI=mongodb://mongodb:27017/profilservice
+      - AUTH_SERVER_URL=https://auth.freischule.info
+      - NODE_ENV=production
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - profilservice-network
+    restart: unless-stopped
+
+  mongodb:
+    image: mongo:7
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ['CMD', 'mongosh', '--eval', 'db.adminCommand("ping")']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - profilservice-network
+    restart: unless-stopped
+
+volumes:
+  mongodb_data:
+
+networks:
+  profilservice-network:
+    driver: bridge
