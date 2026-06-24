@@ -1,4 +1,6 @@
 export const typeDefs = `#graphql
+  scalar JSON
+
   type GlobalProfile {
     id: ID!
     displayName: String!
@@ -102,11 +104,20 @@ export const typeDefs = `#graphql
     globalProfile(userId: ID!): GlobalProfile
     myVirtualOfficeProfile: VirtualOfficeProfile
     myFreeSchoolProfile: FreeSchoolProfile
+
+    # Generic free-form profiles (privacy-enforced on foreign reads).
+    profile(userId: ID!, prefix: String!): JSON
+    myProfile(prefix: String!): JSON
+    messangerProfile(userId: ID!): JSON
+    myMessangerProfile: JSON
   }
 
   type Mutation {
     updateGlobalProfile(input: GlobalProfileInput!): GlobalProfile
     updateVirtualOfficeProfile(input: VirtualOfficeProfileInput!): VirtualOfficeProfile
     updateFreeSchoolProfile(input: FreeSchoolProfileInput!): FreeSchoolProfile
+
+    # Create or update an owner-owned free-form profile (incl. its _privacy flags).
+    updateProfile(prefix: String!, profile: JSON!): JSON
   }
 `
